@@ -3,21 +3,9 @@ networks:
   trella-net:
     driver: bridge
 services:
-  trella-be:
-    container_name: trella-be
-    image: trella-be
-    restart: always
-    build:
-      context: .
-    ports:
-      - 8088:8080
-    networks:
-      - trella-net
-    depends_on:
-      - trelladb
   trelladb:
     container_name: trelladb
-    image: postgres
+    image: postgres:latest
     restart: always
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
@@ -25,5 +13,20 @@ services:
       - 5430:5432
     networks:
       - trella-net
-    environment:
-      - POSTGRES_PASSWORD=admin
+    env_file:
+      - .env
+  trella-be:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: trella-be
+    restart: always
+    ports:
+      - 8088:8080
+    networks:
+      - trella-net
+    env_file:
+      - .env
+    depends_on:
+      - trelladb
+
